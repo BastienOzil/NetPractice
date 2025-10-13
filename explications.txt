@@ -1,0 +1,98 @@
+Le masque de sous-réseau est une série de 32 bits 
+qui accompagne une adresse IP. Il sépare l’adresse IP en deux parties :
+
+IP: Identifie un appareil dans un réseau.
+
+Mask: Détermine la partie "réseau" et la partie "hôte".
+
+Exemple:
+IP: 192.168.1.10
+Mask: 255.255.255.0
+
+En binaire, ce mask donne:
+11111111.11111111.11111111.00000000
+Cela veut dire que les 24 premiers bits (les trois premiers octets) sont la partie réseau.
+
+le 0 represent l'emplacement "hote".
+le 1 l'emplacement "reseau".
+
+Donc tous les appareils qui ont une adresse IP du type 192.168.1.X où X peut aller de 1 à 254
+sont dans le même réseau local.
+
+Autrement dit: Tu peut mettre n'importe quel valeur du moment que tu reste
+dans les 0 du binaire du mask.
+----------------------------------------------------------------------------------------------
+
+Il n'existe que quelques mask
+On peut les definires differentes tranches:
+
+255.X.X.X de 8 a 30
+255.255.X.X de 16 a 30
+255.255.255.X de 24 a 30
+
+Exemple:
+IP: 192.168.1.10
+Mask: 255.255.255.128
+
+Mask = 11111111.11111111.11111111.10000000
+
+le mask 255.255.255.128 est de la tranche /25
+car les 25 premier bit sont a 1.
+----------------------------------------------------------------------------------------------
+
+Les reseau sont determine par des tranches!
+Pour /X, on calcule 2^(32 - X)-2 = emplacements libres.
+
+ATTENTION:
+la premiere et la derniere valeur d'un reseau est reserve, d'ou le -2.
+
+Ce nombre d'emplacement libre sont les tranches de reseau.
+Chaque fois que tu augmente le préfixe de 1 tu retire 1 bit d’hôte:
+
+-tu divises par 2 le nombre d’adresses:
+256 → 128 → 64 → 32 → 16 → 8 → 4.
+
+-double le nombre de reseau:
+1 → 2 → 4 → 8 → 16 → 32 → 64.
+
+Exemple:
+avec /26
+2^(32 - 26) = 64
+256/64 = 4
+Il y a donc 1 reseau tout les 64 valeurs jusaqu'a 255 (en comptant le 0)
+et 62 enplacement libre par reseau (ici 4 reseaux.)
+
+IP: 192.168.1.22 et IP: 192.168.1.54 sont du meme reseau.
+IP: 192.168.1.22 et IP: 192.168.1.74 ne sont pas du meme reseau.
+
+Rapelle:
+00000000 = 0	/24
+10000000 = 128	/25
+11000000 = 192	/26
+11100000 = 224	/27
+11110000 = 240	/28
+11111000 = 248	/29
+11111100 = 252	/30
+11111110 = 254	/cas tres speciale pour les liens point-a-point
+11111111 = 255	/adresse de broadcast
+----------------------------------------------------------------------------------------------
+Pour qu'un routeur soit liee a internet, le routeur doit avoir une redirection parametre
+par default ou 0.0.0.0/0 vers l'IP du reseau internet et definir l'enssemble des sous reseaux
+grace aux tranches avec comme IP de reference le reseau en question:
+
+0.0.0.0/0 = default
+
+Exemple:
+redirection internet: "123.123.123.225/25" -> "163.172.250.12"
+redirection routeur: "0.0.0.0/0" -> "163.172.250.1"
+
+reseau internet-routeur: IP:"163.172.250.12" mask:"255.255.255.240" ou "/28"
+reseau routeur-box: IP:"123.123.123.225" mask:"255.255.255.128" ou "/25"
+
+Ici, la 'redirection internet' prend l'adresse IP du reseau 'routeur-box' et
+y detail la tranche du mask.
+
+De plus le routeur est parametre par 'default' vers l'IP du reseau 'internet-routeur'
+en finissant par 1.
+----------------------------------------------------------------------------------------------
+
